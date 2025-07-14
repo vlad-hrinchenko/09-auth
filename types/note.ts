@@ -7,7 +7,6 @@ export interface Note {
   tag: NoteTag;
 }
 
-// 👇 Додаємо інтерфейс відповіді з пагінацією
 export interface PaginatedNotesResponse {
   notes: Note[];
   page: number;

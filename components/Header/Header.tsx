@@ -1,5 +1,6 @@
 "use client";
 
+import AuthNavigation from "../AuthNavigation/AuthNavigation";
 import Link from "next/link";
 import css from "./Header.module.css";
 import TagsMenu from "../../components/TagsMenu/TagsMenu";
@@ -17,6 +18,9 @@ export default function Header() {
           </li>
           <li>
             <TagsMenu />
+          </li>
+          <li>
+            <AuthNavigation />
           </li>
         </ul>
       </nav>
