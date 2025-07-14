@@ -6,14 +6,35 @@ export const getCurrentUser = async () => {
 };
 
 export const registerUser = async (email: string, password: string) => {
-  const res = await api.post("/auth/register", { email, password });
-  return res.data;
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Registration failed");
+  }
+
+  return res.json();
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const res = await api.post("/auth/login", { email, password });
-  return res.data;
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Login failed");
+  }
+
+  return res.json();
 };
+
 
 export const logoutUser = async () => {
   await api.post("/auth/logout");

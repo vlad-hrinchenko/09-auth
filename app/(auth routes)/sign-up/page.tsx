@@ -34,8 +34,9 @@ export default function SignUpPage() {
 
   return (
     <main className={styles.mainContent}>
-      <h1 className={styles.formTitle}>Sign up</h1>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <h1 className={styles.formTitle}>Sign Up</h1>
+
         <div className={styles.formGroup}>
           <label htmlFor="email">Email</label>
           <input
@@ -43,9 +44,9 @@ export default function SignUpPage() {
             type="email"
             name="email"
             className={styles.input}
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
@@ -56,9 +57,9 @@ export default function SignUpPage() {
             type="password"
             name="password"
             className={styles.input}
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
 
