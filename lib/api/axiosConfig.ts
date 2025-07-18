@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://09-auth-two.vercel.app/api";
 
 export const axiosConfig = axios.create({
   baseURL: BASE_URL,

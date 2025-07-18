@@ -1,47 +1,58 @@
-import { axiosConfig } from "./api";
+import { cookies } from "next/headers";
 import type { User, SessionResponseData } from "@/types/user";
 import type { Note, FetchNotesResponse } from "@/types/note";
-import { cookies } from "next/headers";
-import type { AxiosResponse } from "axios";
+import { axiosConfig } from "./axiosConfig"; // імпорт екземпляра axios
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://notehub-api.goit.study";
+// Отримати поточного користувача (тільки дані)
+export const getCurrentUser = async (): Promise<User> => {
+  const cookie = cookies().toString();
 
-function getCookieHeader() {
-  const cookieStore = cookies();
-  const cookie = cookieStore.toString();
-  return cookie ? { Cookie: cookie } : {};
-}
-
-export const getCurrentUser = async (): Promise<AxiosResponse<User>> => {
-  return await axiosConfig.get<User>(`${BASE_URL}/users/me`, {
-    headers: getCookieHeader(),
+  const response = await axiosConfig.get<User>("/users/me", {
+    headers: { Cookie: cookie },
   });
+
+  return response.data; // повертаємо тільки дані
 };
 
-export const checkSession = async (): Promise<AxiosResponse<SessionResponseData>> => {
-  return await axiosConfig.get<SessionResponseData>(`${BASE_URL}/auth/session`, {
-    headers: getCookieHeader(),
+// Перевірка сесії
+export const checkSession = async (): Promise<SessionResponseData> => {
+  const cookie = cookies().toString();
+
+  const response = await axiosConfig.get<SessionResponseData>("/auth/session", {
+    headers: { Cookie: cookie },
   });
+
+  return response.data;
 };
 
+// Отримати нотатки
 export const fetchNotes = async (
   page = 1,
   perPage = 12,
   search = "",
   tag = ""
-): Promise<AxiosResponse<FetchNotesResponse>> => {
+): Promise<FetchNotesResponse> => {
+  const cookie = cookies().toString();
+
   const params: Record<string, string | number> = { page, perPage };
   if (search.trim()) params.search = search;
   if (tag && tag.toLowerCase() !== "all") params.tag = tag;
 
-  return await axiosConfig.get<FetchNotesResponse>(`${BASE_URL}/notes`, {
-    headers: getCookieHeader(),
+  const response = await axiosConfig.get<FetchNotesResponse>("/notes", {
+    headers: { Cookie: cookie },
     params,
   });
+
+  return response.data;
 };
 
-export const fetchNoteById = async (id: string): Promise<AxiosResponse<Note>> => {
-  return await axiosConfig.get<Note>(`${BASE_URL}/notes/${id}`, {
-    headers: getCookieHeader(),
+// Отримати нотатку за ID
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const cookie = cookies().toString();
+
+  const response = await axiosConfig.get<Note>(`/notes/${id}`, {
+    headers: { Cookie: cookie },
   });
+
+  return response.data;
 };
