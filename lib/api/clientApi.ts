@@ -1,4 +1,4 @@
-import { axiosConfig } from "../api/api";
+import { axiosConfig } from "../api/axiosConfig";
 import type {
   User,
   RegisteredUser,
