@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { createNote } from "./api";
+import { createNote } from "./api/api";
 import { NoteTag } from "@/types/note";
 
 export async function createNoteAction({
