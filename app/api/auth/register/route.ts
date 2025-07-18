@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { axiosConfig } from "@/lib/api/api";
+import axios from "axios";
 import { parse } from "cookie";
 import { isAxiosError } from "axios";
 
@@ -7,19 +7,16 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const apiRes = await axiosConfig.post("/auth/register", body, {
+    // 🔁 Звертаємось до зовнішнього API, а не до себе
+    const apiRes = await axios.post("https://notehub-api.goit.study/auth/register", body, {
       withCredentials: true,
     });
 
     const setCookieHeader = apiRes.headers["set-cookie"];
-    const response = NextResponse.json(apiRes.data, {
-      status: apiRes.status,
-    });
+    const response = NextResponse.json(apiRes.data, { status: apiRes.status });
 
     if (setCookieHeader) {
-      const cookieArray = Array.isArray(setCookieHeader)
-        ? setCookieHeader
-        : [setCookieHeader];
+      const cookieArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
 
       for (const cookieStr of cookieArray) {
         const parsed = parse(cookieStr);
@@ -54,9 +51,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
