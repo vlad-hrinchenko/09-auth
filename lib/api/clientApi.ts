@@ -1,4 +1,4 @@
-import { axiosConfig } from "../api/api";
+import { axiosConfig } from "../api/axiosConfig";
 import type { User, RegisteredUser, CreateUserData, SessionResponseData } from "@/types/user";
 import type { Note, NewNoteData, FetchNotesResponse } from "@/types/note";
 
