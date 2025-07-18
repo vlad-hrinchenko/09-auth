@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL + "/auth/session";
+  const apiUrl = "https://09-auth-two.vercel.app/api/auth/session";
 
-  const res = await fetch(apiUrl!, {
-    method: "GET",
+  const response = await fetch(apiUrl, {
     headers: {
-      cookie: request.headers.get("cookie") || "",
+      Cookie: request.headers.get("cookie") || "",
     },
     credentials: "include",
   });
 
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  const data = await response.json();
+  return NextResponse.json(data, { status: response.status });
 }
