@@ -6,7 +6,7 @@ import { useAuthStore } from "@/lib/store/authStore";
 import { register } from "@/lib/api/clientApi";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import css from "./signUp.module.css"; // підключи свій CSS-модуль
+import css from "./SignUp.module.css";
 
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email address").required("Required"),
