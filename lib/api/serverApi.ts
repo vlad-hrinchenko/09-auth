@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import type { User, SessionResponseData } from "@/types/user";
 import type { Note, FetchNotesResponse } from "@/types/note";
-import { axiosConfig } from "./axiosConfig"; // імпорт екземпляра axios
+import { axiosConfig } from "./axiosConfig";
+import type { AxiosResponse } from "axios";
 
 // Отримати поточного користувача (тільки дані)
 export const getCurrentUser = async (): Promise<User> => {
@@ -11,18 +12,18 @@ export const getCurrentUser = async (): Promise<User> => {
     headers: { Cookie: cookie },
   });
 
-  return response.data; // повертаємо тільки дані
+  return response.data;
 };
 
-// Перевірка сесії
-export const checkSession = async (): Promise<SessionResponseData> => {
+// Перевірка сесії — ПОВЕРТАЄМО ПОВНИЙ ОБ’ЄКТ ВІДПОВІДІ AXIOS
+export const checkSession = async (): Promise<AxiosResponse<SessionResponseData>> => {
   const cookie = cookies().toString();
 
   const response = await axiosConfig.get<SessionResponseData>("/auth/session", {
     headers: { Cookie: cookie },
   });
 
-  return response.data;
+  return response;
 };
 
 // Отримати нотатки
