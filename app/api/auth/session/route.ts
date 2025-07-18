@@ -1,11 +1,9 @@
-// app/api/session/route.ts
-
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL + "/auth/session";
 
-  const res = await fetch(apiUrl, {
+  const res = await fetch(apiUrl!, {
     method: "GET",
     headers: {
       cookie: request.headers.get("cookie") || "",
@@ -13,6 +11,6 @@ export async function GET(request: Request) {
     credentials: "include",
   });
 
-  const body = await res.json();
-  return NextResponse.json(body, { status: res.status });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
 }
