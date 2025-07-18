@@ -1,16 +1,33 @@
+// Тип для дозволених тегів нотаток
 export type NoteTag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 
-export interface Note {
+// Одна нотатка
+export type Note = {
   id: number;
   title: string;
   content: string;
+  createdAt: string;
+  updatedAt: string;
   tag: NoteTag;
-}
+};
 
-export interface PaginatedNotesResponse {
+// Відповідь при запиті списку нотаток
+export type FetchNotesResponse = {
   notes: Note[];
-  page: number;
+  total: number;
   totalPages: number;
-  totalResults: number;
-}
+  tag: string;
+};
 
+// Дані для створення нової нотатки
+export type NewNoteData = {
+  title: string;
+  content: string;
+  tag: NoteTag;
+};
+
+// Категорії (опціонально, якщо використовуються окремо)
+export type Category = {
+  id: string;
+  name: string;
+};

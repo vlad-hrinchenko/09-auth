@@ -1,17 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
-
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    domains: ['your-backend.com'],
+    domains: ["ac.goit.global"], // ✅ додано для avatar
   },
 };
 
-export const config = {
-  matcher: ["/notes/:path*", "/profile/:path*", "/sign-in", "/sign-up"],
-};
+module.exports = nextConfig;

@@ -1,76 +1,81 @@
 "use client";
-
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { registerUser } from "@/lib/api/clientApi";
+import { useState } from "react";
+import { CreateUserData } from "../../../types/user";
+import { register } from "../../../lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
-import styles from "./SignUp.module.css";
+import css from "./SignUp.module.css";
+import { Formik } from "formik";
+import { FormikHelpers } from "formik";
 
-export default function SignUpPage() {
+const initialValues: CreateUserData = {
+  email: "",
+  password: "",
+};
+
+export default function SignUp() {
   const router = useRouter();
-  const { setUser } = useAuthStore();
+  const setUser = useAuthStore((state) => state.setUser);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-
+  const handleSubmit = async (
+    values: CreateUserData,
+    actions: FormikHelpers<CreateUserData>
+  ) => {
     try {
-      const user = await registerUser(email, password);
-      setUser(user);
-      router.push("/profile");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        const axiosErr = err as { response?: { data?: { message?: string } } };
-        setError(axiosErr.response?.data?.message || err.message);
-      } else {
-        setError("Something went wrong");
-      }
+      const user = await register(values);
+      setUser({ ...user, avatar: "" });
+      router.push("/sign-in");
+      actions.resetForm();
+    } catch (error) {
+      setErrorMessage("Registration failed");
+      console.log(error);
     }
   };
-
   return (
-    <main className={styles.mainContent}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <h1 className={styles.formTitle}>Sign Up</h1>
+    <main className={css.mainContent}>
+      <h1 className={css.formTitle}>Sign up</h1>
+      <Formik<CreateUserData>
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+      >
+        {({ handleChange, handleSubmit, values }) => (
+          <form className={css.form} onSubmit={handleSubmit}>
+            <div className={css.formGroup}>
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                className={css.input}
+                value={values.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+            <div className={css.formGroup}>
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                className={css.input}
+                value={values.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            className={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className={styles.actions}>
-          <button type="submit" className={styles.submitButton}>
-            Register
-          </button>
-        </div>
-
-        {error && <p className={styles.error}>{error}</p>}
-      </form>
+            <div className={css.actions}>
+              <button type="submit" className={css.submitButton}>
+                Register
+              </button>
+            </div>
+            {errorMessage && <p className={css.error}>{errorMessage}</p>}
+          </form>
+        )}
+      </Formik>
     </main>
   );
 }

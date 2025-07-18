@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useNoteStore } from "@/lib/store/noteStore";
+import { useNoteDraftStore } from "@/lib/store/noteStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import styles from "./NoteForm.module.css";
 import { createNote } from "@/lib/api";
@@ -11,7 +11,7 @@ export default function NoteForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { draft, setDraft, clearDraft } = useNoteStore();
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
 
   const mutation = useMutation({
     mutationFn: () => createNote(draft),
@@ -27,6 +27,7 @@ export default function NoteForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!draft.title.trim()) return;
     mutation.mutate();
   };
 
@@ -38,7 +39,7 @@ export default function NoteForm() {
           type="text"
           className={styles.input}
           value={draft.title}
-          onChange={(e) => setDraft({ title: e.target.value })}
+          onChange={(e) => setDraft({ ...draft, title: e.target.value })}
           required
         />
       </label>
@@ -48,7 +49,7 @@ export default function NoteForm() {
         <textarea
           className={styles.textarea}
           value={draft.content}
-          onChange={(e) => setDraft({ content: e.target.value })}
+          onChange={(e) => setDraft({ ...draft, content: e.target.value })}
         />
       </label>
 
@@ -58,7 +59,7 @@ export default function NoteForm() {
           className={styles.select}
           value={draft.tag}
           onChange={(e) =>
-            setDraft({ tag: e.target.value as typeof draft.tag })
+            setDraft({ ...draft, tag: e.target.value as typeof draft.tag })
           }
         >
           <option value="Todo">Todo</option>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/api/clientApi";
+import { getUser } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function AuthProvider({
@@ -18,7 +18,7 @@ export default function AuthProvider({
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const user = await getCurrentUser();
+        const user = await getUser();
         if (user?.email) {
           setUser(user);
         } else {

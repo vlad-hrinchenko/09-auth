@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/api/serverApi";
 import css from "./profile.module.css";
 import Image from "next/image";
@@ -10,8 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ProfilePage() {
-  const cookie = cookies().toString();
-  const user = await getCurrentUser(cookie);
+  const user = await getCurrentUser();
 
   return (
     <main className={css.mainContent}>
