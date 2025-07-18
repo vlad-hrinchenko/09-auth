@@ -21,12 +21,7 @@ export default function AuthProvider({
 
         if (session?.valid) {
           const user = await getUser();
-          if (user?.email) {
-            setUser(user);
-          } else {
-            clearIsAuthenticated();
-            router.push("/sign-in");
-          }
+          setUser(user);
         } else {
           clearIsAuthenticated();
           router.push("/sign-in");

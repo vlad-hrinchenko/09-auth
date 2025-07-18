@@ -48,10 +48,17 @@ export const updateUserProfile = async (
 };
 
 // 🔍 Перевірка сесії через Next.js API (щоб уникнути CORS)
+// checkSession — ЗАПИТ до нашого серверного API-роута (щоб уникнути CORS)
 export const checkSession = async (): Promise<SessionResponseData> => {
-  const { data } = await axiosConfig.get<SessionResponseData>("/api/session");
-  return data;
+  const res = await fetch("/api/session", {
+    credentials: "include",
+  });
+
+  if (!res.ok) throw new Error("Session check failed");
+
+  return res.json();
 };
+
 
 // 🗒 Отримати список нотаток
 export const fetchNotes = async ({
