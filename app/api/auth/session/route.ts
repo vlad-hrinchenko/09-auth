@@ -1,56 +1,18 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { api } from '../../api';
-import { parse } from 'cookie';
-import { isAxiosError } from 'axios';
-import { logErrorResponse } from '../../_utils/utils';
+// app/api/session/route.ts
 
-export async function GET() {
-  try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
-    const refreshToken = cookieStore.get('refreshToken')?.value;
+import { NextResponse } from "next/server";
 
-    if (accessToken) {
-      return NextResponse.json({ success: true });
-    }
+export async function GET(request: Request) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL + "/auth/session";
 
-    if (refreshToken) {
-      const apiRes = await api.get('auth/session', {
-        headers: {
-          Cookie: cookieStore.toString(),
-        },
-      });
+  const res = await fetch(apiUrl, {
+    method: "GET",
+    headers: {
+      cookie: request.headers.get("cookie") || "",
+    },
+    credentials: "include",
+  });
 
-      const setCookie = apiRes.headers['set-cookie'];
-
-      if (setCookie) {
-        const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
-        for (const cookieStr of cookieArray) {
-          const parsed = parse(cookieStr);
-
-          const options = {
-            expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-            path: parsed.Path,
-            maxAge: Number(parsed['Max-Age']),
-          };
-
-          if (parsed.accessToken) cookieStore.set('accessToken', parsed.accessToken, options);
-          if (parsed.refreshToken) cookieStore.set('refreshToken', parsed.refreshToken, options);
-        }
-        return NextResponse.json({ success: true }, { status: apiRes.status });
-      }
-    }
-    return NextResponse.json({ error: 'Invalid or expired refresh token' }, { status: 401 });
-  } catch (error) {
-    if (isAxiosError(error)) {
-      logErrorResponse(error.response?.data);
-      return NextResponse.json(
-        { error: error.message, response: error.response?.data },
-        { status: error.status }
-      );
-    }
-    logErrorResponse({ message: (error as Error).message });
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
+  const body = await res.json();
+  return NextResponse.json(body, { status: res.status });
 }

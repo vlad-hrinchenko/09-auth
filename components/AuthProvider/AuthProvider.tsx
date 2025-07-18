@@ -17,9 +17,9 @@ export default function AuthProvider({
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const session = await checkSession();
+        const response = await checkSession();
 
-        if (session?.valid) {
+        if (response.status === 200 && response.data.valid) {
           const user = await getUser();
           if (user?.email) {
             setUser(user);
