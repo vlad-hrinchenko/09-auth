@@ -1,4 +1,4 @@
-import { fetchNoteById } from "@/lib/api";
+import { fetchNoteById } from "@/lib/api/clientApi";
 import type { Metadata } from "next";
 import type { Note } from "@/types/note";
 
@@ -7,7 +7,8 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
-  const note: Note | null = await fetchNoteById(Number(params.id));
+  const noteId = Number(params.id); // ← перетворення string → number
+  const note: Note | null = await fetchNoteById(noteId);
 
   const title = note ? `${note.title} — NoteHub` : "Нотатка — NoteHub";
   const description =

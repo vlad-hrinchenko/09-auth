@@ -7,18 +7,20 @@ import Link from "next/link";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import SearchBox from "@/components/SearchBox/SearchBox";
-import { fetchNotes } from "@/lib/api";
-import type { Note } from "@/types/note";
+import { fetchNotes } from "@/lib/api/clientApi";
+import type { Note, FetchNotesResponse } from "@/types/note";
 
 interface NotesClientProps {
   notes: Note[];
   totalPages: number;
+  total: number;
   tag: string;
 }
 
 export default function NotesClient({
   notes,
   totalPages,
+  total,
   tag,
 }: NotesClientProps) {
   const [page, setPage] = useState(1);
@@ -28,15 +30,21 @@ export default function NotesClient({
   const trimmedSearch = debouncedSearchText.trim();
   const tagForQuery = tag === "All" ? undefined : tag;
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", trimmedSearch, page, tag],
-    queryFn: () => fetchNotes(trimmedSearch, page, 12, tagForQuery),
+  const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
+    queryKey: ["notes", page, trimmedSearch, tagForQuery],
+    queryFn: () =>
+      fetchNotes({
+        page,
+        perPage: 12,
+        search: trimmedSearch,
+        tag: tagForQuery,
+      }),
     placeholderData: keepPreviousData,
     initialData: {
       notes,
       totalPages,
-      page: 1,
-      totalResults: notes.length,
+      total,
+      tag,
     },
   });
 

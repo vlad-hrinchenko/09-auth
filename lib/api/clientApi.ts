@@ -1,6 +1,15 @@
 import { axiosConfig } from "../api/axiosConfig";
-import type { User, RegisteredUser, CreateUserData, SessionResponseData } from "@/types/user";
-import type { Note, NewNoteData, FetchNotesResponse } from "@/types/note";
+import type {
+  User,
+  RegisteredUser,
+  CreateUserData,
+  SessionResponseData,
+} from "@/types/user";
+import type {
+  Note,
+  NewNoteData,
+  FetchNotesResponse,
+} from "@/types/note";
 
 // 🔐 Реєстрація
 export const register = async (payload: CreateUserData) => {
@@ -37,13 +46,17 @@ export const checkSession = async () => {
   return data;
 };
 
-// 🗒 Отримати список нотаток
-export const fetchNotes = async (
+export const fetchNotes = async ({
   page = 1,
   perPage = 12,
   search = "",
-  tag = ""
-): Promise<FetchNotesResponse> => {
+  tag = "",
+}: {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  tag?: string;
+}): Promise<FetchNotesResponse> => {
   const params: Record<string, string | number> = { page, perPage };
   if (search.trim()) params.search = search;
   if (tag && tag.toLowerCase() !== "all") params.tag = tag;
@@ -52,8 +65,9 @@ export const fetchNotes = async (
   return data;
 };
 
+
 // 🗒 Отримати нотатку за ID
-export const fetchNoteById = async (id: string): Promise<Note> => {
+export const fetchNoteById = async (id: number): Promise<Note> => {
   const { data } = await axiosConfig.get<Note>(`/notes/${id}`);
   return data;
 };

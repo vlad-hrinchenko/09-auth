@@ -2,10 +2,13 @@ import { cookies } from "next/headers";
 import type { User, SessionResponseData } from "@/types/user";
 import type { Note, FetchNotesResponse } from "@/types/note";
 
+// Використовуємо зовнішній продакшн бекенд (не локальний /api)
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://notehub-api.goit.study";
+
 // SSR: Отримати поточного користувача
 export const getCurrentUser = async (): Promise<User> => {
   const cookie = cookies().toString();
-  const response = await fetch("http://localhost:3000/api/users/me", {
+  const response = await fetch(`${BASE_URL}/users/me`, {
     headers: { Cookie: cookie },
     cache: "no-store",
   });
@@ -16,7 +19,7 @@ export const getCurrentUser = async (): Promise<User> => {
 // SSR: Перевірка сесії
 export const checkSession = async (): Promise<SessionResponseData> => {
   const cookie = cookies().toString();
-  const response = await fetch("http://localhost:3000/api/auth/session", {
+  const response = await fetch(`${BASE_URL}/auth/session`, {
     headers: { Cookie: cookie },
     cache: "no-store",
   });
@@ -39,7 +42,7 @@ export const fetchNotes = async (
   if (search) params.set("search", search);
   if (tag && tag.toLowerCase() !== "all") params.set("tag", tag);
 
-  const response = await fetch(`http://localhost:3000/api/notes?${params.toString()}`, {
+  const response = await fetch(`${BASE_URL}/notes?${params.toString()}`, {
     headers: { Cookie: cookie },
     cache: "no-store",
   });
@@ -50,7 +53,7 @@ export const fetchNotes = async (
 // SSR: Отримати нотатку за ID
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const cookie = cookies().toString();
-  const response = await fetch(`http://localhost:3000/api/notes/${id}`, {
+  const response = await fetch(`${BASE_URL}/notes/${id}`, {
     headers: { Cookie: cookie },
     cache: "no-store",
   });

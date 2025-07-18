@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { fetchNotes } from "../../lib/api";
+import { fetchNotes } from "../../lib/api/clientApi";
 import NoteList from "../../components/NoteList/NoteList";
 import Modal from "../../components/Modal/Modal";
 import NoteForm from "../../components/NoteForm/NoteForm";
@@ -20,7 +20,12 @@ const App = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", trimmedSearch, page],
-    queryFn: () => fetchNotes(trimmedSearch, page),
+    queryFn: () =>
+      fetchNotes({
+        search: trimmedSearch,
+        page,
+        perPage: 12,
+      }),
     placeholderData: keepPreviousData,
   });
 

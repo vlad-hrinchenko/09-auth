@@ -1,4 +1,4 @@
-import { fetchNotes } from "@/lib/api";
+import { fetchNotes } from "@/lib/api/serverApi";
 import NotesClient from "./Notes.client";
 import type { Metadata } from "next";
 
@@ -34,9 +34,14 @@ interface Props {
 export default async function NotesByTagPage({ params }: Props) {
   const tag = params.slug?.[0] || "All";
 
-  const data = await fetchNotes("", 1, 12, tag === "All" ? undefined : tag);
+  const data = await fetchNotes(1, 12, "", tag === "All" ? undefined : tag);
 
   return (
-    <NotesClient notes={data.notes} totalPages={data.totalPages} tag={tag} />
+    <NotesClient
+      notes={data.notes}
+      totalPages={data.totalPages}
+      total={data.total}
+      tag={tag}
+    />
   );
 }
