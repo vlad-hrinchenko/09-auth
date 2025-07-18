@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { axiosConfig } from "@/lib/api/api";
+import axios from "axios";
 import { parse } from "cookie";
 import { isAxiosError } from "axios";
 
@@ -7,12 +7,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const apiRes = await axiosConfig.post("/auth/login", body, {
+    const apiRes = await axios.post("https://notehub-api.goit.study/auth/login", body, {
       withCredentials: true,
     });
 
     const setCookieHeader = apiRes.headers["set-cookie"];
-
     const response = NextResponse.json(apiRes.data, {
       status: apiRes.status,
     });
@@ -35,7 +34,6 @@ export async function POST(req: NextRequest) {
         if (parsed.accessToken) {
           response.cookies.set("accessToken", parsed.accessToken, options);
         }
-
         if (parsed.refreshToken) {
           response.cookies.set("refreshToken", parsed.refreshToken, options);
         }
