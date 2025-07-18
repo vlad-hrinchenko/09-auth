@@ -32,7 +32,7 @@ const NoteList: React.FC<NoteListProps> = ({ notes }) => {
             <span className={css.tag}>{note.tag}</span>
             <button
               className={css.button}
-              onClick={() => deleteMutation.mutate(note.id)}
+              onClick={() => deleteMutation.mutate(String(note.id))}
             >
               Delete
             </button>

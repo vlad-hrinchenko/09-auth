@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getUser } from "@/lib/api/clientApi";
+import { checkSession, getUser } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
 
 export default function AuthProvider({
@@ -12,15 +12,21 @@ export default function AuthProvider({
 }) {
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(true);
-
   const { setUser, clearIsAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    const checkSession = async () => {
+    const verifySession = async () => {
       try {
-        const user = await getUser();
-        if (user?.email) {
-          setUser(user);
+        const session = await checkSession();
+
+        if (session?.valid) {
+          const user = await getUser();
+          if (user?.email) {
+            setUser(user);
+          } else {
+            clearIsAuthenticated();
+            router.push("/sign-in");
+          }
         } else {
           clearIsAuthenticated();
           router.push("/sign-in");
@@ -33,7 +39,7 @@ export default function AuthProvider({
       }
     };
 
-    checkSession();
+    verifySession();
   }, [setUser, clearIsAuthenticated, router]);
 
   if (isChecking) {

@@ -7,8 +7,8 @@ export async function generateMetadata({
 }: {
   params: { id: string };
 }): Promise<Metadata> {
-  const noteId = Number(params.id); // ← перетворення string → number
-  const note: Note | null = await fetchNoteById(noteId);
+  // Передаємо id без перетворення на number
+  const note: Note | null = await fetchNoteById(params.id);
 
   const title = note ? `${note.title} — NoteHub` : "Нотатка — NoteHub";
   const description =

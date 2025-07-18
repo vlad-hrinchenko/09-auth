@@ -15,7 +15,7 @@ export default function NotePreview({ noteId }: Props) {
     isError,
   } = useQuery<Note>({
     queryKey: ["note", noteId],
-    queryFn: () => fetchNoteById(Number(noteId)), // 🔧 тут каст до number
+    queryFn: () => fetchNoteById(String(noteId)), // 🔧 тут каст до number
     refetchOnMount: false,
   });
 

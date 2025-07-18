@@ -1,32 +1,28 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchNoteById } from "@/lib/api/api";
+import { fetchNoteById } from "@/lib/api/clientApi";
 import type { Note } from "@/types/note";
 
-interface Props {
-  noteId: number;
+interface NotePreviewProps {
+  noteId: number | string;
 }
 
-export default function NotePreview({ noteId }: Props) {
-  const {
-    data: note,
-    isLoading,
-    isError,
-  } = useQuery<Note>({
+export default function NotePreview({ noteId }: NotePreviewProps) {
+  const { data, isLoading, isError } = useQuery<Note>({
     queryKey: ["note", noteId],
-    queryFn: () => fetchNoteById(noteId),
+    queryFn: () => fetchNoteById(String(noteId)), // Тут обов’язково String()
     refetchOnMount: false,
   });
 
   if (isLoading) return <p>Loading note...</p>;
-  if (isError || !note) return <p>Failed to load note.</p>;
+  if (isError || !data) return <p>Error loading note.</p>;
 
   return (
-    <div>
-      <h2>{note.title}</h2>
-      <p>{note.content}</p>
-      <span>{note.tag}</span>
-    </div>
+    <article>
+      <h2>{data.title}</h2>
+      <p>{data.content}</p>
+      <p>Tag: {data.tag}</p>
+    </article>
   );
 }

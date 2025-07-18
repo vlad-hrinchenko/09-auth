@@ -1,81 +1,68 @@
 "use client";
+
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { CreateUserData } from "../../../types/user";
-import { register } from "../../../lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
-import css from "./SignUp.module.css";
-import { Formik } from "formik";
-import { FormikHelpers } from "formik";
+import { register } from "@/lib/api/clientApi";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
-const initialValues: CreateUserData = {
-  email: "",
-  password: "",
-};
+const SignUpSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email address").required("Required"),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Required"),
+});
 
-export default function SignUp() {
+export default function SignUpPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
-  const [errorMessage, setErrorMessage] = useState("");
+  const { setUser } = useAuthStore();
 
-  const handleSubmit = async (
-    values: CreateUserData,
-    actions: FormikHelpers<CreateUserData>
-  ) => {
-    try {
-      const user = await register(values);
-      setUser({ ...user, avatar: "" });
-      router.push("/sign-in");
-      actions.resetForm();
-    } catch (error) {
-      setErrorMessage("Registration failed");
-      console.log(error);
-    }
-  };
   return (
-    <main className={css.mainContent}>
-      <h1 className={css.formTitle}>Sign up</h1>
-      <Formik<CreateUserData>
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
+    <div>
+      <h1>Sign Up</h1>
+      <Formik
+        initialValues={{ email: "", password: "" }}
+        validationSchema={SignUpSchema}
+        onSubmit={async (values, { setSubmitting, setErrors }) => {
+          try {
+            const user = await register(values);
+            setUser(user);
+            // Перенаправлення на сторінку профілю після успішної реєстрації
+            router.push("/profile");
+          } catch {
+            setErrors({ email: "Registration failed. Please try again." });
+          } finally {
+            setSubmitting(false);
+          }
+        }}
       >
-        {({ handleChange, handleSubmit, values }) => (
-          <form className={css.form} onSubmit={handleSubmit}>
-            <div className={css.formGroup}>
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                className={css.input}
-                value={values.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        {({ isSubmitting }) => (
+          <Form>
+            <label htmlFor="email">Email</label>
+            <Field
+              type="email"
+              name="email"
+              id="email"
+              placeholder="Enter your email"
+            />
+            <ErrorMessage name="email" component="div" className="error" />
 
-            <div className={css.formGroup}>
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                className={css.input}
-                value={values.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <label htmlFor="password">Password</label>
+            <Field
+              type="password"
+              name="password"
+              id="password"
+              placeholder="Enter your password"
+            />
+            <ErrorMessage name="password" component="div" className="error" />
 
-            <div className={css.actions}>
-              <button type="submit" className={css.submitButton}>
-                Register
-              </button>
-            </div>
-            {errorMessage && <p className={css.error}>{errorMessage}</p>}
-          </form>
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Signing up..." : "Sign Up"}
+            </button>
+          </Form>
         )}
       </Formik>
-    </main>
+    </div>
   );
 }

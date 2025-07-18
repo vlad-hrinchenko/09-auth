@@ -1,11 +1,13 @@
-import { fetchNotes } from "@/lib/api/serverApi";
 import NotesClient from "./Notes.client";
+import { fetchNotes } from "@/lib/api/clientApi";
 import type { Metadata } from "next";
+import type { FetchNotesResponse } from "@/types/note";
 
-export async function generateMetadata(
-  props: Promise<{ params: { slug: string[] } }>
-): Promise<Metadata> {
-  const { params } = await props;
+interface Props {
+  params: { slug?: string[] };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const tag = params.slug?.[0] || "All";
 
   const title = `Фільтр: ${tag} — NoteHub`;
@@ -27,14 +29,15 @@ export async function generateMetadata(
   };
 }
 
-interface Props {
-  params: { slug?: string[] };
-}
-
 export default async function NotesByTagPage({ params }: Props) {
   const tag = params.slug?.[0] || "All";
 
-  const data = await fetchNotes(1, 12, "", tag === "All" ? undefined : tag);
+  const data: FetchNotesResponse = await fetchNotes({
+    page: 1,
+    perPage: 12,
+    search: "",
+    tag: tag === "All" ? "" : tag,
+  });
 
   return (
     <NotesClient
