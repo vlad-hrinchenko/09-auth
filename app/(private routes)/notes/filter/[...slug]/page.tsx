@@ -3,11 +3,11 @@ import { Metadata } from "next";
 import { fetchNotesServer } from "@/lib/api/serverApi";
 
 interface Props {
-  params: Promise<{ slug: string[] }>;
+  params: { slug: string[] }; // ✅ тип без Promise
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = params;
   const category = slug[0];
 
   return {
@@ -40,9 +40,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const NotesByCategory = async ({ params }: Props) => {
-  const { slug } = await params;
-  const category = slug[0]?.toLowerCase() === "All" ? undefined : slug[0];
-  const initialData = await fetchNotesServer("", 1, 10, category);
+  const { slug } = params;
+  const category = slug[0]?.toLowerCase() === "all" ? undefined : slug[0];
+
+  const initialData = await fetchNotesServer("", 1, 10, category); // ✅ куки додаються в serverApi
 
   return (
     <div>

@@ -1,23 +1,23 @@
-import { fetchNoteById } from "@/lib/api/clientApi";
 import {
   HydrationBoundary,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
 import PreviewClient from "./NotePreview.client";
+import { fetchNoteByIdServer } from "@/lib/api/serverApi"; // ✅ серверний запит з куками
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 const NoteDetailsModal = async ({ params }: Props) => {
-  const { id } = await params;
+  const { id } = params;
 
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
     queryKey: ["note", id],
-    queryFn: () => fetchNoteById(id),
+    queryFn: () => fetchNoteByIdServer(id), // ✅ серверний запит
   });
 
   return (
