@@ -1,16 +1,18 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
+// next.config.js
+const nextConfig = {
+  async headers() {
+    return [
       {
-        protocol: "https",
-        hostname: "ac.goit.global",
-        port: "",
-        pathname: "/**",
+        source: "/api/(.*)",
+        headers: [
+          {
+            key: "Access-Control-Allow-Credentials",
+            value: "true",
+          },
+        ],
       },
-    ],
+    ];
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
