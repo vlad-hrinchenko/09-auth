@@ -1,33 +1,46 @@
+// app/api/auth/login/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { api } from "@/app/api/api";
-import { cookies } from "next/headers";
 import { parse } from "cookie";
+import api from "@/lib/api/api";
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const apiRes = await api.post("auth/login", body);
+  try {
+    const body = await request.json();
 
-  const cookieStore = await cookies();
-  const setCookie = apiRes.headers["set-cookie"];
+    const apiRes = await api.post("/auth/login", body);
+    const cookieHeader = apiRes.headers["set-cookie"];
 
-  if (setCookie) {
-    const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+    if (!cookieHeader) {
+      return NextResponse.json({ error: "No cookies set by API" }, { status: 401 });
+    }
+
+    const cookieArray = Array.isArray(cookieHeader) ? cookieHeader : [cookieHeader];
+    const response = NextResponse.json(apiRes.data, { status: 200 });
+
     for (const cookieStr of cookieArray) {
       const parsed = parse(cookieStr);
       const options = {
+        path: parsed.Path || "/",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax" as const,
         expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-        path: parsed.Path,
-        maxAge: Number(parsed["Max-Age"]),
+        maxAge: parsed["Max-Age"] ? Number(parsed["Max-Age"]) : undefined,
       };
-      if (parsed.accessToken)
-        cookieStore.set("accessToken", parsed.accessToken, options);
-      if (parsed.refreshToken)
-        cookieStore.set("refreshToken", parsed.refreshToken, options);
+
+      if (parsed.accessToken) {
+        response.cookies.set("accessToken", parsed.accessToken, options);
+      }
+
+      if (parsed.refreshToken) {
+        response.cookies.set("refreshToken", parsed.refreshToken, options);
+      }
     }
 
-    return NextResponse.json(apiRes.data);
+    return response;
+  } catch (error) {
+    console.error("Login failed:", error);
+    return NextResponse.json({ error: "Login failed" }, { status: 500 });
   }
-
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
