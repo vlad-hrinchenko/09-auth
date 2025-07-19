@@ -1,101 +1,83 @@
-import { axiosConfig } from "../api/axiosConfig";
-import type {
-  User,
-  RegisteredUser,
-  CreateUserData,
-  SessionResponseData,
-} from "@/types/user";
-import type {
-  Note,
-  NewNoteData,
-  FetchNotesResponse,
-} from "@/types/note";
 
-// 🔐 Реєстрація користувача
-export const register = async (
-  payload: CreateUserData
-): Promise<RegisteredUser> => {
-  const { data } = await axiosConfig.post<RegisteredUser>(
-    "/auth/register",
-    payload
-  );
-  return data;
-};
+import type { Note, NewNote, NotesResponse } from "@/types/note";
+import { nextServer } from "./api";
+import { User } from "@/types/user";
+import { UserRequest, CheckSessionResponse } from "@/types/user";
+import { AxiosError } from "axios";
 
-// 🔐 Логін користувача
-export const login = async (payload: CreateUserData): Promise<User> => {
-  const { data } = await axiosConfig.post<User>("/auth/login", payload);
-  return data;
-};
-
-// 🚪 Вихід із системи
-export const logout = async (): Promise<void> => {
-  await axiosConfig.post("/auth/logout");
-};
-
-// 👤 Отримати поточного користувача
-export const getUser = async (): Promise<User> => {
-  const { data } = await axiosConfig.get<User>("/users/me");
-  return data;
-};
-
-// 📝 Оновити профіль користувача
-export const updateUserProfile = async (
-  updateUserData: Partial<User>
-): Promise<User> => {
-  const { data } = await axiosConfig.patch<User>("/users/me", updateUserData);
-  return data;
-};
-
-// 🔍 Перевірка сесії через Next.js API (щоб уникнути CORS)
-// checkSession — ЗАПИТ до нашого серверного API-роута (щоб уникнути CORS)
-export const checkSession = async (): Promise<SessionResponseData> => {
-  const res = await fetch("/api/session", {
-    credentials: "include",
-  });
-
-  if (!res.ok) throw new Error("Session check failed");
-
-  return res.json();
-};
-
-
-// 🗒 Отримати список нотаток
-export const fetchNotes = async ({
+export const fetchNotes = async (
+  searchText: string,
   page = 1,
-  perPage = 12,
-  search = "",
-  tag = "",
-}: {
-  page?: number;
-  perPage?: number;
-  search?: string;
-  tag?: string;
-}): Promise<FetchNotesResponse> => {
-  const params: Record<string, string | number> = { page, perPage };
-  if (search.trim()) params.search = search;
-  if (tag && tag.toLowerCase() !== "all") params.tag = tag;
-
-  const { data } = await axiosConfig.get<FetchNotesResponse>("/notes", {
-    params,
+  perPage = 10,
+  tag?: string
+): Promise<NotesResponse> => {
+  const { data } = await nextServer.get<NotesResponse>("/notes", {
+    params: {
+      ...(searchText !== "" && { search: searchText }),
+      page,
+      perPage,
+      ...(tag && tag !== "All" && { tag }),
+    },
   });
+
   return data;
 };
 
-// 🗒 Отримати нотатку за ID
+export const createNote = async (noteData: NewNote): Promise<Note> => {
+  const { data } = await nextServer.post<Note>("/notes", noteData);
+  return data;
+};
+
+export const deleteNote = async (notesId: string): Promise<Note> => {
+  const { data } = await nextServer.delete<Note>(`/notes/${notesId}`);
+  return data;
+};
+
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await axiosConfig.get<Note>(`/notes/${id}`);
+  const { data } = await nextServer.get<Note>(`/notes/${id}`);
   return data;
 };
 
-// ➕ Створити нову нотатку
-export const createNote = async (note: NewNoteData): Promise<Note> => {
-  const { data } = await axiosConfig.post<Note>("/notes", note);
+export const register = async (data: UserRequest): Promise<User> => {
+  const response = await nextServer.post<User>("/auth/register", data);
+  return response.data;
+};
+
+export const login = async (data: UserRequest): Promise<User> => {
+  const response = await nextServer.post<User>("/auth/login", data);
+  return response.data;
+};
+
+export const logout = async (): Promise<void> => {
+  await nextServer.post("/auth/logout");
+};
+
+export const checkSession = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const { data, status } =
+      await nextServer.get<CheckSessionResponse>("/auth/session");
+    return { success: status === 200, message: data.message };
+  } catch (error) {
+    const axiosError = error as AxiosError<{ message: string }>;
+    if (
+      axiosError.response?.status === 400 ||
+      axiosError.response?.status === 401
+    ) {
+      return { success: false, message: axiosError.response.data.message };
+    }
+    throw error;
+  }
+};
+
+export const getMe = async (): Promise<User> => {
+  const { data } = await nextServer.get<User>("/users/me");
   return data;
 };
 
-// ❌ Видалити нотатку за ID
-export const deleteNote = async (id: string): Promise<Note> => {
-  const { data } = await axiosConfig.delete<Note>(`/notes/${id}`);
-  return data;
+export const updateUser = async (data: { username: string }): Promise<User> => {
+  const response = await nextServer.patch<User>("/users/me", data);
+  return response.data;
 };

@@ -1,43 +1,40 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { login } from "@/lib/api/clientApi";
-import { useAuthStore } from "@/lib/store/authStore";
-import type { CreateUserData } from "@/types/user";
 import css from "./SignIn.module.css";
+import { useAuthStore } from "@/lib/store/authStore";
+import { useState } from "react";
+import { UserRequest } from "@/types/user";
+import { login } from "@/lib/api/clientApi";
 
-export default function SignIn() {
-  const setUser = useAuthStore((state) => state.setUser);
+const SignInPage = () => {
   const router = useRouter();
   const [error, setError] = useState("");
+  const setUser = useAuthStore((state) => state.setUser);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const userData: CreateUserData = {
+  const handleSubmit = async (formData: FormData) => {
+    const values: UserRequest = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     };
 
     try {
-      const user = await login(userData);
-      if (user) {
-        setUser(user);
-        router.replace("/profile"); // редірект після успішного логіну
+      const res = await login(values);
+      if (res) {
+        setUser(res);
+        router.push("/profile");
       } else {
         setError("Invalid email or password");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Login failed, please try again");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError("Something went wrong. Try again.");
     }
   };
 
   return (
     <main className={css.mainContent}>
-      <form className={css.form} onSubmit={handleSubmit} noValidate>
+      <form className={css.form} action={handleSubmit}>
         <h1 className={css.formTitle}>Sign in</h1>
 
         <div className={css.formGroup}>
@@ -48,7 +45,6 @@ export default function SignIn() {
             name="email"
             className={css.input}
             required
-            autoComplete="email"
           />
         </div>
 
@@ -60,7 +56,6 @@ export default function SignIn() {
             name="password"
             className={css.input}
             required
-            autoComplete="current-password"
           />
         </div>
 
@@ -74,4 +69,6 @@ export default function SignIn() {
       </form>
     </main>
   );
-}
+};
+
+export default SignInPage;

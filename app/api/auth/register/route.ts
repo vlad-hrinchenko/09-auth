@@ -1,56 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { api } from "@/app/api/api";
+import { cookies } from "next/headers";
 import { parse } from "cookie";
-import { isAxiosError } from "axios";
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+  const body = await req.json();
+  const apiRes = await api.post("auth/register", body);
 
-    // 🔁 Звертаємось до зовнішнього API, а не до себе
-    const apiRes = await axios.post("https://notehub-api.goit.study/auth/register", body, {
-      withCredentials: true,
-    });
+  const cookieStore = await cookies();
+  const setCookie = apiRes.headers["set-cookie"];
 
-    const setCookieHeader = apiRes.headers["set-cookie"];
-    const response = NextResponse.json(apiRes.data, { status: apiRes.status });
+  if (setCookie) {
+    const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+    for (const cookieStr of cookieArray) {
+      const parsed = parse(cookieStr);
 
-    if (setCookieHeader) {
-      const cookieArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
-
-      for (const cookieStr of cookieArray) {
-        const parsed = parse(cookieStr);
-
-        const options = {
-          path: parsed.Path ?? "/",
-          maxAge: parsed["Max-Age"] ? Number(parsed["Max-Age"]) : undefined,
-          expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-          httpOnly: true,
-        };
-
-        if (parsed.accessToken) {
-          response.cookies.set("accessToken", parsed.accessToken, options);
-        }
-        if (parsed.refreshToken) {
-          response.cookies.set("refreshToken", parsed.refreshToken, options);
-        }
-      }
+      const options = {
+        expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
+        path: parsed.Path,
+        maxAge: Number(parsed["Max-Age"]),
+      };
+      if (parsed.accessToken)
+        cookieStore.set("accessToken", parsed.accessToken, options);
+      if (parsed.refreshToken)
+        cookieStore.set("refreshToken", parsed.refreshToken, options);
     }
-
-    return response;
-  } catch (error) {
-    if (isAxiosError(error)) {
-      return NextResponse.json(
-        {
-          error: error.message,
-          response: error.response?.data,
-        },
-        {
-          status: error.response?.status || 500,
-        }
-      );
-    }
-
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(apiRes.data);
   }
+
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
