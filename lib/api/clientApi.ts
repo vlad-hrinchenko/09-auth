@@ -11,7 +11,7 @@ export const fetchNotes = async (
 ): Promise<NotesResponse> => {
   const { data } = await api.get<NotesResponse>("/notes", {
     params: {
-      ...(searchText && { search: searchText }),
+      ...(searchText !== "" && { search: searchText }),
       page,
       perPage,
       ...(tag && tag !== "All" && { tag }),
@@ -30,8 +30,19 @@ export const createNote = async (note: NewNote): Promise<Note> => {
   return data;
 };
 
-export const deleteNote = async (id: string): Promise<void> => {
-  await api.delete(`/notes/${id}`);
+export const deleteNote = async (id: string): Promise<Note> => {
+  const { data } = await api.delete<Note>(`/notes/${id}`);
+  return data;
+};
+
+export const updateUserProfile = async (userData: { username: string }): Promise<User> => {
+  const { data } = await api.patch<User>("/users/me", userData);
+  return data;
+};
+
+export const getMe = async (): Promise<User> => {
+  const { data } = await api.get<User>("/users/me");
+  return data;
 };
 
 export const register = async (data: UserRequest): Promise<User> => {
@@ -54,19 +65,7 @@ export const checkSession = async (): Promise<{ success: boolean; message: strin
     return { success: status === 200, message: data.message };
   } catch (error) {
     const axiosError = error as AxiosError<{ message: string }>;
-    return {
-      success: false,
-      message: axiosError.response?.data?.message ?? "Unknown error",
-    };
+    const message = axiosError.response?.data.message ?? "Session check failed";
+    return { success: false, message };
   }
-};
-
-export const getMe = async (): Promise<User> => {
-  const { data } = await api.get<User>("/users/me");
-  return data;
-};
-
-export const updateUserProfile = async (data: { username: string }): Promise<User> => {
-  const { data: user } = await api.patch<User>("/users/me", data);
-  return user;
 };
