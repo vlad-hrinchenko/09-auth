@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { nextServer } from '@/lib/api/api'; // <-- Імпорт axios-інстансу
+import { nextServer } from '@/lib/api/api'; 
 import { cookies } from 'next/headers';
 import { isAxiosError } from 'axios';
 
 export async function GET() {
   try {
-    const cookieHeader = cookies().toString(); // ⛔ не await
+    const cookieHeader = cookies().toString();
 
     const res = await nextServer.get('/users/me', {
       headers: {
