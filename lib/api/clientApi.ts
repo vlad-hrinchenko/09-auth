@@ -1,16 +1,17 @@
 import type { Note, NewNote, NotesResponse } from "@/types/note";
 import type { User, UserRequest, CheckSessionResponse } from "@/types/user";
-import { nextServer } from "./api";
+import api from "./api";
 import { AxiosError } from "axios";
 
 // Notes
+
 export const fetchNotes = async (
-  searchText: string,
+  searchText = "",
   page = 1,
   perPage = 10,
   tag?: string
 ): Promise<NotesResponse> => {
-  const { data } = await nextServer.get<NotesResponse>("/notes", {
+  const { data } = await api.get<NotesResponse>("/notes", {
     params: {
       ...(searchText && { search: searchText }),
       page,
@@ -21,55 +22,59 @@ export const fetchNotes = async (
   return data;
 };
 
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const { data } = await api.get<Note>(`/notes/${id}`);
+  return data;
+};
+
 export const createNote = async (noteData: NewNote): Promise<Note> => {
-  const { data } = await nextServer.post<Note>("/notes", noteData);
+  const { data } = await api.post<Note>("/notes", noteData);
   return data;
 };
 
 export const deleteNote = async (noteId: string): Promise<Note> => {
-  const { data } = await nextServer.delete<Note>(`/notes/${noteId}`);
-  return data;
-};
-
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await nextServer.get<Note>(`/notes/${id}`);
+  const { data } = await api.delete<Note>(`/notes/${noteId}`);
   return data;
 };
 
 // Auth
+
 export const register = async (data: UserRequest): Promise<User> => {
-  const { data: user } = await nextServer.post<User>("/auth/register", data);
-  return user;
+  const response = await api.post<User>("/auth/register", data);
+  return response.data;
 };
 
 export const login = async (data: UserRequest): Promise<User> => {
-  const { data: user } = await nextServer.post<User>("/auth/login", data);
-  return user;
+  const response = await api.post<User>("/auth/login", data);
+  return response.data;
 };
 
 export const logout = async (): Promise<void> => {
-  await nextServer.post("/auth/logout");
+  await api.post("/auth/logout");
 };
 
-export const checkSession = async (): Promise<{ success: boolean; message: string }> => {
+export const checkSession = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   try {
-    const { data, status } = await nextServer.get<CheckSessionResponse>("/auth/session");
+    const { data, status } = await api.get<CheckSessionResponse>("/auth/session");
     return { success: status === 200, message: data.message };
   } catch (error) {
     const axiosError = error as AxiosError<{ message: string }>;
-    if (axiosError.response?.status === 400 || axiosError.response?.status === 401) {
-      return { success: false, message: axiosError.response.data.message };
+    if ([400, 401].includes(axiosError.response?.status || 0)) {
+      return { success: false, message: axiosError.response?.data.message ?? "Unauthorized" };
     }
     throw error;
   }
 };
 
 export const getMe = async (): Promise<User> => {
-  const { data } = await nextServer.get<User>("/users/me");
+  const { data } = await api.get<User>("/users/me");
   return data;
 };
 
-export const updateUserProfile = async (data: { username: string }): Promise<User> => {
-  const { data: user } = await nextServer.patch<User>("/users/me", data);
-  return user;
+export const updateUser = async (data: { username: string }): Promise<User> => {
+  const { data: updated } = await api.patch<User>("/users/me", data);
+  return updated;
 };
