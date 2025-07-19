@@ -1,6 +1,6 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://notehub-api.goit.study',
+  baseURL: 'https://09-auth-two.vercel.app/',
   withCredentials: true,
 });
