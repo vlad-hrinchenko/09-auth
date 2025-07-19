@@ -2,7 +2,7 @@ import axios from "axios";
 import type { NotesResponse } from "@/types/note";
 
 export const nextServer = axios.create({
-  baseURL: "https://notehub-api.goit.study",
+  baseURL: "https://09-auth-two.vercel.app/",
   withCredentials: true,
 });
 
