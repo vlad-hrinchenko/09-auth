@@ -20,7 +20,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const body = await request.json();
 
     const { data } = await api.patch("/users/me", body, {
