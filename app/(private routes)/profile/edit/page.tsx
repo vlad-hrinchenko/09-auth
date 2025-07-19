@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuthStore } from "@/lib/store/authStore";
-import { updateUser } from "@/lib/api/clientApi";
+import { updateUserProfile } from "@/lib/api/clientApi";
 import css from "./editProfile.module.css";
 
 export default function EditProfilePage() {
@@ -24,7 +24,7 @@ export default function EditProfilePage() {
     setError(null);
     try {
       setIsSubmitting(true);
-      const updatedUser = await updateUser({ username });
+      const updatedUser = await updateUserProfile({ username });
       setUser(updatedUser);
       router.push("/profile");
     } catch (err) {
