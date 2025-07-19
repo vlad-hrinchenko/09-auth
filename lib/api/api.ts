@@ -1,14 +1,9 @@
+// lib/api/api.ts
 import axios from "axios";
-import type { NotesResponse } from "@/types/note";
+
+const baseURL = process.env.NEXT_PUBLIC_API_URL + "/api";
 
 export const nextServer = axios.create({
-  baseURL: "https://notehub-api.goit.study",
+  baseURL,
   withCredentials: true,
 });
-
-export const getNotes = async (categoryId?: string) => {
-  const res = await nextServer.get<NotesResponse>("/notes", {
-    params: { categoryId },
-  });
-  return res.data;
-};
