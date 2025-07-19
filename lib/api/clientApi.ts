@@ -1,3 +1,5 @@
+// lib/api/clientApi.ts
+
 import { nextServer } from './api';
 import type { Note, NotesResponse, NewNote } from '@/types/note';
 import type { User, UserRequest, CheckSessionResponse } from '@/types/user';
@@ -61,7 +63,13 @@ export const checkSession = async (): Promise<{ success: boolean; message: strin
     };
   }
 };
+
+export const getMe = async (): Promise<User> => {
+  const res = await nextServer.get<User>('/users/me');
+  return res.data;
+};
+
 export const updateUser = async (userData: { username: string }): Promise<User> => {
-  const { data } = await nextServer.patch<User>("/users/me", userData);
-  return data;
+  const res = await nextServer.patch<User>('/users/me', userData);
+  return res.data;
 };
