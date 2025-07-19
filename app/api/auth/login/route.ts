@@ -1,46 +1,42 @@
-// app/api/auth/login/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
+import  api  from "@/lib/api/api";
 import { parse } from "cookie";
-import api from "@/lib/api/api";
 
 export async function POST(request: NextRequest) {
+  const body = await request.json();
+
   try {
-    const body = await request.json();
-
     const apiRes = await api.post("/auth/login", body);
-    const cookieHeader = apiRes.headers["set-cookie"];
 
-    if (!cookieHeader) {
-      return NextResponse.json({ error: "No cookies set by API" }, { status: 401 });
-    }
+    const setCookie = apiRes.headers["set-cookie"];
+    const response = NextResponse.json(apiRes.data);
 
-    const cookieArray = Array.isArray(cookieHeader) ? cookieHeader : [cookieHeader];
-    const response = NextResponse.json(apiRes.data, { status: 200 });
+    if (setCookie) {
+      const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
 
-    for (const cookieStr of cookieArray) {
-      const parsed = parse(cookieStr);
-      const options = {
-        path: parsed.Path || "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax" as const,
-        expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-        maxAge: parsed["Max-Age"] ? Number(parsed["Max-Age"]) : undefined,
-      };
+      for (const cookieStr of cookieArray) {
+        const parsed = parse(cookieStr);
 
-      if (parsed.accessToken) {
-        response.cookies.set("accessToken", parsed.accessToken, options);
-      }
+        const options = {
+          path: parsed.Path || "/",
+          httpOnly: true,
+          secure: true,
+          maxAge: Number(parsed["Max-Age"]),
+          expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
+        };
 
-      if (parsed.refreshToken) {
-        response.cookies.set("refreshToken", parsed.refreshToken, options);
+        if (parsed.accessToken) {
+          response.cookies.set("accessToken", parsed.accessToken, options);
+        }
+        if (parsed.refreshToken) {
+          response.cookies.set("refreshToken", parsed.refreshToken, options);
+        }
       }
     }
 
     return response;
   } catch (error) {
-    console.error("Login failed:", error);
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+    console.error("Login route failed:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
