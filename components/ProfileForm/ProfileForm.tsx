@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 
 import { useAuthStore } from "@/lib/store/authStore";
-import { updateUser } from "@/lib/api/clientApi"; // ✅ правильна функція
+import { updateUserProfile } from "@/lib/api/clientApi";
 import styles from "./ProfileForm.module.css";
 
 export default function ProfileForm() {
@@ -22,7 +22,7 @@ export default function ProfileForm() {
   }, [user?.username]);
 
   const mutation = useMutation({
-    mutationFn: (data: { username: string }) => updateUser(data), // ✅ виправлено
+    mutationFn: (data: { username: string }) => updateUserProfile(data),
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
       router.push("/profile");
