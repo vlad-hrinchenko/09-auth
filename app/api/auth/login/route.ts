@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import  api  from "@/lib/api/api";
+import api from "@/lib/api/api";
 import { parse } from "cookie";
 
 export async function POST(request: NextRequest) {

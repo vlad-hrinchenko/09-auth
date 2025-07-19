@@ -9,9 +9,9 @@ export const fetchNotes = async (
   perPage = 10,
   tag?: string
 ): Promise<NotesResponse> => {
-  const { data } = await api.get<NotesResponse>("/notes", {
+  const { data } = await api.get("/notes", {
     params: {
-      ...(searchText !== "" && { search: searchText }),
+      ...(searchText && { search: searchText }),
       page,
       perPage,
       ...(tag && tag !== "All" && { tag }),
@@ -21,37 +21,37 @@ export const fetchNotes = async (
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await api.get<Note>(`/notes/${id}`);
+  const { data } = await api.get(`/notes/${id}`);
   return data;
 };
 
 export const createNote = async (note: NewNote): Promise<Note> => {
-  const { data } = await api.post<Note>("/notes", note);
+  const { data } = await api.post("/notes", note);
   return data;
 };
 
 export const deleteNote = async (id: string): Promise<Note> => {
-  const { data } = await api.delete<Note>(`/notes/${id}`);
+  const { data } = await api.delete(`/notes/${id}`);
   return data;
 };
 
 export const updateUserProfile = async (userData: { username: string }): Promise<User> => {
-  const { data } = await api.patch<User>("/users/me", userData);
+  const { data } = await api.patch("/users/me", userData);
   return data;
 };
 
 export const getMe = async (): Promise<User> => {
-  const { data } = await api.get<User>("/users/me");
+  const { data } = await api.get("/users/me");
   return data;
 };
 
 export const register = async (data: UserRequest): Promise<User> => {
-  const { data: user } = await api.post<User>("/auth/register", data);
+  const { data: user } = await api.post("/auth/register", data);
   return user;
 };
 
 export const login = async (data: UserRequest): Promise<User> => {
-  const { data: user } = await api.post<User>("/auth/login", data);
+  const { data: user } = await api.post("/auth/login", data);
   return user;
 };
 
