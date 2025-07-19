@@ -13,31 +13,28 @@ export async function GET() {
   }
 
   if (refreshToken) {
-    const apiRes = await api.get("/auth/session", {
+    const apiRes = await api.get("auth/session", {
       headers: {
         Cookie: cookieStore.toString(),
       },
     });
-
     const setCookie = apiRes.headers["set-cookie"];
-
     if (setCookie) {
       const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
-      let newAccessToken = "";
-      let newRefreshToken = "";
+      let accessToken = "";
+      let refreshToken = "";
 
       for (const cookieStr of cookieArray) {
         const parsed = parse(cookieStr);
-        if (parsed.accessToken) newAccessToken = parsed.accessToken;
-        if (parsed.refreshToken) newRefreshToken = parsed.refreshToken;
+        if (parsed.accessToken) accessToken = parsed.accessToken;
+        if (parsed.refreshToken) refreshToken = parsed.refreshToken;
       }
 
-      if (newAccessToken) cookieStore.set("accessToken", newAccessToken);
-      if (newRefreshToken) cookieStore.set("refreshToken", newRefreshToken);
+      if (accessToken) cookieStore.set("accessToken", accessToken);
+      if (refreshToken) cookieStore.set("refreshToken", refreshToken);
 
       return NextResponse.json({});
     }
   }
-
   return NextResponse.json({});
 }
